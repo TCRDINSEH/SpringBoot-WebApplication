@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Git Checkout ') {
             steps {
-                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/jaiswaladi246/SpringBoot-WebApplication.git'
+                git branch: 'main', changelog: false, poll: false, url: 'hhttps://github.com/TCRDINSEH/SpringBoot-WebApplication.git'
             }
         }
         
