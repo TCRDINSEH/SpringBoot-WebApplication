@@ -65,8 +65,8 @@ pipeline {
                    script {
                        withDockerRegistry(credentialsId: 'b289dc43-2ede-4bd0-95e8-75ca26100d8d', toolName: 'docker') {
                             sh "docker build -t webapp ."
-                            sh "docker tag webapp adijaiswal/webapp:latest"
-                            sh "docker push adijaiswal/webapp:latest "
+                            sh "docker tag webapp tcrd4323/webapp:latest"
+                            sh "docker push tcrd4323/webapp:latest "
                         }
                    } 
             }
@@ -74,7 +74,7 @@ pipeline {
         
         stage('Docker Image scan') {
             steps {
-                    sh "trivy image adijaiswal/webapp:latest "
+                    sh "trivy image tcrd4323/webapp:latest "
             }
         }
         
