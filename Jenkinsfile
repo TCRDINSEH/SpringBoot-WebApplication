@@ -46,21 +46,13 @@ pipeline {
 
 
         
-      stage('OWASP Dependency Check') {
+stage('OWASP Dependency Check') {
     steps {
-        sh '''
-        docker run --rm \
-          -v $WORKSPACE:/src \
-          -v $WORKSPACE/dependency-check-data:/usr/share/dependency-check/data \
-          -v $WORKSPACE/dependency-check-report:/report \
-          owasp/dependency-check \
-          --scan /src \
-          --format "XML" \
-          --out /report
-        '''
-        dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+        dependencyCheck additionalArguments: '--scan ./   ', odcInstallation: 'DP'
+        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
     }
 }
+
 
         
         stage('Maven Build') {
