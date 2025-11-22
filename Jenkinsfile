@@ -63,7 +63,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                    script {
-                       withDockerRegistry(credentialsId: 'b289dc43-2ede-4bd0-95e8-75ca26100d8d', toolName: 'docker') {
+                       withDockerRegistry(credentialsId: 'Dockercred', url: 'https://index.docker.io/v1/') {
                             sh "docker build -t webapp ."
                             sh "docker tag webapp tcrd4323/webapp:latest"
                             sh "docker push tcrd4323/webapp:latest "
