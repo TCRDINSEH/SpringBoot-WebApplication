@@ -29,15 +29,11 @@ pipeline {
             }
         }
         
-   stage('Sonarqube Analysis') {
+ stage('Sonarqube Analysis') {
     steps {
         withSonarQubeEnv('sonar-server') {
             sh '''
-            docker run --rm \
-              -e SONAR_HOST_URL=$SONAR_HOST_URL \
-              -e SONAR_LOGIN=$SONAR_AUTH_TOKEN \
-              -v $WORKSPACE:/usr/src \
-              sonarsource/sonar-scanner-cli \
+            $SCANNER_HOME/bin/sonar-scanner \
               -Dsonar.projectKey=Java-WebApp \
               -Dsonar.projectName=Java-WebApp \
               -Dsonar.sources=. \
@@ -47,6 +43,7 @@ pipeline {
         }
     }
 }
+
 
         
       stage('OWASP Dependency Check') {
