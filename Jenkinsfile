@@ -31,12 +31,17 @@ pipeline {
         
         stage('Sonarqube Analysis') {
             steps {
-                    withSonarQubeEnv('sonar-server') {
-                        sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Java-WebApp \
-                        -Dsonar.java.binaries=. \
-                        -Dsonar.projectKey=Java-WebApp 
-                        -Dsonar.exclusions=target/**
-                        '''
+                  withSonarQubeEnv('sonar') {
+    sh '''
+    sonar-scanner \
+      -Dsonar.projectKey=Java-WebApp \
+      -Dsonar.projectName=Java-WebApp \
+      -Dsonar.sources=. \
+      -Dsonar.java.binaries=. \
+      -Dsonar.exclusions=target/**
+    '''
+}
+
     
                 }
             }
