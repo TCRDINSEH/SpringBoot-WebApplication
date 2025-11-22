@@ -34,7 +34,9 @@ pipeline {
                     withSonarQubeEnv('sonar-server') {
                         sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Java-WebApp \
                         -Dsonar.java.binaries=. \
-                        -Dsonar.projectKey=Java-WebApp '''
+                        -Dsonar.projectKey=Java-WebApp 
+                        -Dsonar.exclusions=target/**
+                        '''
     
                 }
             }
