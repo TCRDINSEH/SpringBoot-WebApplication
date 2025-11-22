@@ -40,7 +40,7 @@ pipeline {
       -Dsonar.java.binaries=. \
       -Dsonar.exclusions=target/**
     '''
-}
+
 
     
                 }
@@ -79,4 +79,5 @@ pipeline {
         }
         
     }
+}
 
