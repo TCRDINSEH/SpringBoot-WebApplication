@@ -29,30 +29,42 @@ pipeline {
             }
         }
         
-        stage('Sonarqube Analysis') {
-            steps {
-                  withSonarQubeEnv('sonar-server') {
-    sh '''
-   $SCANNER_HOME/bin/sonar-scanner \
-      -Dsonar.projectKey=Java-WebApp \
-      -Dsonar.projectName=Java-WebApp \
-      -Dsonar.sources=. \
-      -Dsonar.java.binaries=. \
-      -Dsonar.exclusions=target/**
-    '''
-
-
-    
-                }
-            }
+   stage('Sonarqube Analysis') {
+    steps {
+        withSonarQubeEnv('sonar-server') {
+            sh '''
+            docker run --rm \
+              -e SONAR_HOST_URL=$SONAR_HOST_URL \
+              -e SONAR_LOGIN=$SONAR_AUTH_TOKEN \
+              -v $WORKSPACE:/usr/src \
+              sonarsource/sonar-scanner-cli \
+              -Dsonar.projectKey=Java-WebApp \
+              -Dsonar.projectName=Java-WebApp \
+              -Dsonar.sources=. \
+              -Dsonar.java.binaries=. \
+              -Dsonar.exclusions=target/**
+            '''
         }
+    }
+}
+
         
-        stage('OWASP Dependency Check') {
-            steps {
-                   dependencyCheck additionalArguments: '--scan ./   ', odcInstallation: 'DP'
-                   dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
+      stage('OWASP Dependency Check') {
+    steps {
+        sh '''
+        docker run --rm \
+          -v $WORKSPACE:/src \
+          -v $WORKSPACE/dependency-check-data:/usr/share/dependency-check/data \
+          -v $WORKSPACE/dependency-check-report:/report \
+          owasp/dependency-check \
+          --scan /src \
+          --format "XML" \
+          --out /report
+        '''
+        dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+    }
+}
+
         
         stage('Maven Build') {
             steps {
