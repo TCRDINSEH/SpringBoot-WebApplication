@@ -111,7 +111,7 @@ pipeline {
     withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GCP_KEY')]) {
       sh '''
         gcloud auth activate-service-account --key-file=${GCP_KEY}
-        gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE} --project ${PROJECT_ID}
+        gcloud container clusters get-credentials webapp-cluster --zone us-central1-a --project applied-pager-476808-j5
         kubectl apply -f k8s/deployment.yaml
       '''
     }
