@@ -112,7 +112,7 @@ pipeline {
       sh '''
         gcloud auth activate-service-account --key-file=${GCP_KEY}
         gcloud container clusters get-credentials webapp-cluster --zone us-central1-a --project applied-pager-476808-j5
-        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f deployment.yaml
       '''
     }
   }
