@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     tools {
         jdk 'jdk11'
         maven 'maven3'
@@ -8,6 +8,11 @@ pipeline {
     
     environment{
         SCANNER_HOME= tool 'sonar-scanner'
+        PROJECT_ID = 'applied-pager-476808-j5'
+        REGION = 'us-central1'
+        REPO = 'webapp-repo'
+        IMAGE = 'webapp'
+        TAG = 'latest'
     }
 
     stages {
@@ -75,13 +80,7 @@ pipeline {
         // }
         
       stage('Docker Build & Push to Artifact Registry') {
-  environment {
-    PROJECT_ID = 'applied-pager-476808-j5'
-    REGION = 'us-central1'
-    REPO = 'webapp-repo'
-    IMAGE = 'webapp'
-    TAG = 'latest'
-  }
+
   steps {
     withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GCP_KEY')]) {
       sh """
