@@ -81,7 +81,7 @@ pipeline {
                         gcloud auth activate-service-account --key-file=${GCP_KEY}
                         gcloud config set project ${PROJECT_ID}
 
-                        NEW_TEMPLATE=${TEMPLATE_NAME}-$(date +%Y%m%d%H%M%S)
+                        NEW_TEMPLATE=${TEMPLATE_NAME}-\$(date +%Y%m%d%H%M%S) \
 
                         # Create instance template with startup script
                         gcloud compute instance-templates create $NEW_TEMPLATE \
