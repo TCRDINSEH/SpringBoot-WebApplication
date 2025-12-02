@@ -5,7 +5,7 @@ pipeline {
         jdk 'jdk11'
         maven 'maven3'
     }
-    
+
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
         PROJECT_ID   = 'applied-pager-476808-j5'
@@ -24,20 +24,14 @@ pipeline {
                 git branch: 'main', changelog: false, poll: false, url: 'https://github.com/TCRDINSEH/SpringBoot-WebApplication.git'
             }
         }
-        
-        stage('Code Compile') {
+
+        stage('Compile & Test') {
             steps {
-                sh "mvn compile"
+                sh "mvn clean compile test"
             }
         }
-        
-        stage('Run Test Cases') {
-            steps {
-                sh "mvn test"
-            }
-        }
-        
-        stage('Sonarqube Analysis') {
+
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
                     sh '''
@@ -54,10 +48,10 @@ pipeline {
 
         stage('Maven Build') {
             steps {
-                sh "mvn clean package -DskipTests"
+                sh "mvn package -DskipTests"
             }
         }
-        
+
         stage('Docker Build & Push to Artifact Registry') {
             steps {
                 withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GCP_KEY')]) {
@@ -74,7 +68,7 @@ pipeline {
             }
         }
 
-        stage('Docker Image Scan') {
+        stage('Image Scan') {
             steps {
                 sh "trivy image ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}"
             }
@@ -87,14 +81,19 @@ pipeline {
                         gcloud auth activate-service-account --key-file=${GCP_KEY}
                         gcloud config set project ${PROJECT_ID}
 
-                        # Create new instance template with updated image
-                        gcloud compute instance-templates create-with-container ${TEMPLATE_NAME}-\$(date +%Y%m%d%H%M%S) \
-                          --container-image=${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG} \
-                          --region=${REGION}
+                        NEW_TEMPLATE=${TEMPLATE_NAME}-$(date +%Y%m%d%H%M%S)
+
+                        # Create instance template with startup script
+                        gcloud compute instance-templates create $NEW_TEMPLATE \
+                          --machine-type=e2-medium \
+                          --region=${REGION} \
+                          --metadata=startup-script='#!/bin/bash
+                            apt-get update && apt-get install -y docker.io
+                            docker run -d -p 80:8080 ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}'
 
                         # Update MIG to use new template
                         gcloud compute instance-groups managed set-instance-template ${MIG_NAME} \
-                          --template=${TEMPLATE_NAME}-\$(date +%Y%m%d%H%M%S) \
+                          --template=$NEW_TEMPLATE \
                           --zone=${ZONE}
 
                         # Rolling update MIG
